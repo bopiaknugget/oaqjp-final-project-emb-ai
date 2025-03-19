@@ -1,9 +1,23 @@
 from flask import Flask, json
 import requests
-def error_handling(text) : 
-    if text == "" or text 
-    return 
+def error_handling_function(text) : 
+    if text == "" or isinstance(text, type(None)) :
+        return True
+    return False
+
 def emotion_detector(text_to_analyze):
+
+    if(error_handling_function(text_to_analyze)) :
+
+        result = {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+        return json.dumps(result, indent=4)
 
     url = "https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict"
     
@@ -15,6 +29,9 @@ def emotion_detector(text_to_analyze):
     data = {
         "raw_document": {"text": text_to_analyze}
     }
+
+    
+
 
     response = requests.post(url, headers=headers, json=data).json()
     emotions = response["emotionPredictions"][0]["emotion"]
