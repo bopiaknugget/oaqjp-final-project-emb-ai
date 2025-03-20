@@ -1,30 +1,38 @@
-from flask import Flask, request, jsonify, json, make_response
+"""
+Module: server.py
+Description: Flask application for emotion detection.
+"""
+
+from flask import Flask, request, render_template
 from EmotionDetection import emotion_detector
 
 app = Flask(__name__)
 
-@app.route("/emotionDetector", methods=["POST"])
-def detect():
-    
-    req_data = request.json
-    text = req_data.get("text", "") 
-    response = emotion_detector(text)   
-    
 
-    res_data = json.loads(response)
+@app.route("/emotionDetector")
+def sent_detector():
+    """Endpoint to detect emotion from the provided text."""
+    text_to_analyze = request.args.get("textToAnalyze")
+    response = emotion_detector(text_to_analyze)
+    if response["dominant_emotion"] is None:
+        return "Invalid text! Please try again!."
+    formatted_output = (
+        f"For the given statement, the system response is "
+        f"'anger': {response['anger']}, "
+        f"'disgust': {response['disgust']}, "
+        f"'fear': {response['fear']}, "
+        f"'joy': {response['joy']}, "
+        f"and 'sadness': {response['sadness']}. "
+        f"The dominant emotion is {response['dominant_emotion']}."
+    )
+    return formatted_output
 
-    if res_data['dominant_emotion'] is None :
-        return make_response(" Invalid text! Please try again!",400)
 
-    f"'anger': { res_data['anger']}, "
-    f"'disgust': { res_data['disgust']}, "
-    f"'fear': { res_data['fear']}, "
-    f"'joy': { res_data['joy']} and "
-    f"'sadness': { res_data['sadness']}. "
-    f"The dominant emotion is { res_data['dominant_emotion']}."
-    
+@app.route("/")
+def index():
+    """Render the index page."""
+    return render_template("index.html")
 
-    return output
 
 if __name__ == "__main__":
     app.run()
